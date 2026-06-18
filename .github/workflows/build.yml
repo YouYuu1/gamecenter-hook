@@ -5,15 +5,31 @@ on:
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Install Theos (Automated)
+      - name: Install Dependencies
         run: |
-          # Oficjalny instalator Theos dla macOS - pobiera system i SDK automatycznie
-          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+          sudo apt-get update
+          sudo apt-get install -y build-essential perl git ccache libostree-dev rsync curl
+
+      - name: Manual Theos Setup
+        run: |
+          # 1. Klonujemy główne repozytorium Theos
+          git clone --recursive https://github.com/theos/theos.git ~/theos
+          
+          # 2. Pobieramy SPRAWDZONY i działający Toolchain z repozytorium Samg_is_a_Ninja
+          mkdir -p ~/theos/toolchain/linux/iphone
+          curl -LO https://github.com/samgisaninja/theos-linux-arm64-toolchain/releases/download/v1.0.0/toolchain-linux-arm64.tar.gz
+          tar -xf toolchain-linux-arm64.tar.gz -C ~/theos/toolchain/linux/iphone --strip-components=1
+          rm -f toolchain-linux-arm64.tar.gz
+          
+          # 3. Pobieramy oficjalne SDK (iOS 14)
+          git clone https://github.com/theos/sdks.git ~/theos/sdks-master
+          mv ~/theos/sdks-master/*.sdk ~/theos/sdks/
+          rm -rf ~/theos/sdks-master
 
       - name: Build Tweak Package
         run: |
@@ -38,7 +54,7 @@ jobs:
           
           cp Filter.plist GameCenterHook.plist
 
-          # Kompilacja projektu
+          # Uruchomienie kompilacji
           make package FINALPACKAGE=1
 
       - name: Upload Artifacts
