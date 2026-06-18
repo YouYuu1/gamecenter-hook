@@ -17,15 +17,14 @@ jobs:
 
       - name: Manual Theos Setup
         run: |
-          # 1. Klunujemy główne repozytorium Theos
+          # 1. Klonujemy główne repozytorium Theos
           git clone --recursive https://github.com/theos/theos.git ~/theos
           
-          # 2. Pobieramy oficjalny Toolchain dla Linuksa (kompilator iOS)
+          # 2. Pobieramy stabilny i pewny Toolchain dla Ubuntu
           mkdir -p ~/theos/toolchain/linux/iphone
-          curl -LO https://github.com/theos/toolchain/releases/download/linux-arm64/toolchain-linux-arm64.tar.gz || curl -LO https://github.com/theos/toolchain/releases/download/v2/toolchain-linux-x86_64.tar.gz
-          # W zależności od maszyny wyciągamy paczkę do odpowiedniego folderu
-          tar -xf toolchain-linux-*.tar.gz -C ~/theos/toolchain/linux/iphone --strip-components=1 || tar -xf toolchain-linux-x86_64.tar.gz -C ~/theos/toolchain/linux/iphone --strip-components=1
-          rm -f toolchain-linux-*.tar.gz
+          curl -LO https://github.com/theos/toolchain/releases/download/v2/toolchain-linux-x86_64.tar.gz
+          tar -xf toolchain-linux-x86_64.tar.gz -C ~/theos/toolchain/linux/iphone --strip-components=1
+          rm -f toolchain-linux-x86_64.tar.gz
           
           # 3. Pobieramy oficjalne SDK (iOS 14)
           git clone https://github.com/theos/sdks.git ~/theos/sdks-master
@@ -55,7 +54,7 @@ jobs:
           
           cp Filter.plist GameCenterHook.plist
 
-          # Uruchomienie kompilacji z nowym Toolchainem
+          # Uruchomienie kompilacji
           make package FINALPACKAGE=1
 
       - name: Upload Artifacts
