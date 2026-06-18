@@ -52,4 +52,4 @@ jobs:
           name: Tweak-Files
           path: |
             packages/*.deb
-            .theos/obj/GameCenterHook.dylib
+            .theos/obj/**/*.dylib
