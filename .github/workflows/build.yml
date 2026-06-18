@@ -15,21 +15,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential perl git ccache libostree-dev rsync curl
 
-      - name: Manual Theos Setup
+      - name: Official Theos Linux Setup
         run: |
-          # 1. Klonujemy główne repozytorium Theos
-          git clone --recursive https://github.com/theos/theos.git ~/theos
-          
-          # 2. Pobieramy SPRAWDZONY i działający Toolchain z repozytorium Samg_is_a_Ninja
-          mkdir -p ~/theos/toolchain/linux/iphone
-          curl -LO https://github.com/samgisaninja/theos-linux-arm64-toolchain/releases/download/v1.0.0/toolchain-linux-arm64.tar.gz
-          tar -xf toolchain-linux-arm64.tar.gz -C ~/theos/toolchain/linux/iphone --strip-components=1
-          rm -f toolchain-linux-arm64.tar.gz
-          
-          # 3. Pobieramy oficjalne SDK (iOS 14)
-          git clone https://github.com/theos/sdks.git ~/theos/sdks-master
-          mv ~/theos/sdks-master/*.sdk ~/theos/sdks/
-          rm -rf ~/theos/sdks-master
+          # Oficjalny skrypt instalacyjny Theos automatycznie pobierający działający toolchain dla Linux x86_64
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
 
       - name: Build Tweak Package
         run: |
