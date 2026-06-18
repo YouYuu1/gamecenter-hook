@@ -10,34 +10,6 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Fix Ubuntu APT Mirrors and Timeouts
-        run: |
-          # Zmiana serwerów Azure na oficjalne główne serwery Ubuntu
-          sudo sed -i 's/azure\.//g' /etc/apt/sources.list.d/*.sources || true
-          sudo sed -i 's/azure\.//g' /etc/apt/sources.list || true
-          
-          # Ustawienie limitu czasu (timeout) na 10 sekund, żeby apt nie wisiał w nieskończoność
-          echo 'Acquire::http::Timeout "10";' | sudo tee -a /etc/apt/apt.conf.d/99timeout
-          echo 'Acquire::ftp::Timeout "10";' | sudo tee -a /etc/apt/apt.conf.d/99timeout
-          
-          # Szybka aktualizacja list pakietów
-          sudo apt-get update -y || true
-
-      - name: Install Theos
-        uses: Randomblock1/theos-action@v1.5
-
-name: Build Tweak
-
-on:
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Source
-        uses: actions/checkout@v4
-
       - name: Install Dependencies
         run: |
           sudo apt-get update
@@ -54,8 +26,7 @@ jobs:
         run: |
           export THEOS=~/theos
           
-          # Wymuszone tworzenie pliku filtra o obu akceptowanych przez Theos nazwach
-          # bezpośrednio w katalogu projektu, żeby wyeliminować błędy struktury plików.
+          # Automatyczne generowanie plików filtra przed kompilacją
           cat <<EOF > Filter.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -74,16 +45,9 @@ jobs:
           
           cp Filter.plist GameCenterHook.plist
 
-          # Uruchomienie budowania
+          # Kompilacja projektu
           make package FINALPACKAGE=1
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: Tweak-Files
-          path: |
-            packages/*.deb
-            .theos/obj/GameCenterHook.dylib
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
