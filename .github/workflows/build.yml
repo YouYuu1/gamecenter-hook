@@ -10,6 +10,19 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
 
+      - name: Fix Ubuntu APT Mirrors and Timeouts
+        run: |
+          # Zmiana serwerów Azure na oficjalne główne serwery Ubuntu
+          sudo sed -i 's/azure\.//g' /etc/apt/sources.list.d/*.sources || true
+          sudo sed -i 's/azure\.//g' /etc/apt/sources.list || true
+          
+          # Ustawienie limitu czasu (timeout) na 10 sekund, żeby apt nie wisiał w nieskończoność
+          echo 'Acquire::http::Timeout "10";' | sudo tee -a /etc/apt/apt.conf.d/99timeout
+          echo 'Acquire::ftp::Timeout "10";' | sudo tee -a /etc/apt/apt.conf.d/99timeout
+          
+          # Szybka aktualizacja list pakietów
+          sudo apt-get update -y || true
+
       - name: Install Theos
         uses: Randomblock1/theos-action@v1.5
 
