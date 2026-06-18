@@ -1,0 +1,9 @@
+Package: com.yourname.gamecenterhook
+Name: GameCenterHook
+Depends: mobilesubstrate
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: GameCenter Hook
+Maintainer: Developer
+Author: Developer
+Section: Tweaks
