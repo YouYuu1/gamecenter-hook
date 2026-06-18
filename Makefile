@@ -7,5 +7,6 @@ TWEAK_NAME = GameCenterHook
 
 GameCenterHook_FILES = Tweak.x
 GameCenterHook_FRAMEWORKS = UIKit GameKit
+GameCenterHook_RESOURCES = Filter.plist
 
 include $(THEOS_MAKE_PATH)/tweak.mk
