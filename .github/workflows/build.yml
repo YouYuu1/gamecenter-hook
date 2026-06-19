@@ -13,11 +13,10 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential perl git ccache libostree-dev rsync curl
+          sudo apt-get install -y build-essential perl git ccache libostree-dev rsync curl llvm
 
       - name: Official Theos Linux Setup
         run: |
-          # Oficjalny skrypt instalacyjny Theos automatycznie pobierający działający toolchain dla Linux x86_64
           bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
 
       - name: Build Tweak Package
@@ -45,6 +44,14 @@ jobs:
 
           # Uruchomienie kompilacji
           make package FINALPACKAGE=1
+
+          # 100% SKUTECZNA ZMIANA INNER ID NA @RPATH
+          # Jeśli plik istnieje, używamy llvm-objcopy do nadpisania wewnętrznej ścieżki
+          if [ -f .theos/obj/arm64/GameCenterHook.dylib ]; then
+            llvm-objcopy --set-install-name="@rpath/GameCenterHook.dylib" .theos/obj/arm64/GameCenterHook.dylib
+            # Dla pewności kopiujemy poprawiony plik do głównego folderu budowania
+            cp .theos/obj/arm64/GameCenterHook.dylib .theos/obj/GameCenterHook.dylib
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
